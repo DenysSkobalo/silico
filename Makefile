@@ -2,7 +2,7 @@
 
 BUILD_DIR = build
 BINARY = main
-SRC = src/main.c src/device.c src/utils.c
+SRC = src/main.c src/registers.c src/cpu.c src/utils.c
 
 run: compile
 	@./$(BUILD_DIR)/$(BINARY)
