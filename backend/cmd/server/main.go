@@ -10,31 +10,68 @@ import "C"
 
 import (
     "encoding/json"
-    "net/http"
     "log"
+
+    "github.com/gofiber/fiber/v2"
+    "github.com/gofiber/websocket/v2"
 )
 
 type CPUResponse struct {
-    R0   uint32 `json:"r0"`
-    SP   uint32 `json:"sp"`
-    PC   uint32 `json:"pc"`
-    CPSR uint32 `json:"cpsr"`
+    R  [16]uint32 `json:"r"`
+    CPSRFlags struct {
+        N    uint32 `json:"n"`
+        Z    uint32 `json:"z"`
+        C    uint32 `json:"c"`
+        V    uint32 `json:"v"`
+        Q    uint32 `json:"q"`
+        I    uint32 `json:"i"`
+        F    uint32 `json:"f"`
+        T    uint32 `json:"t"`
+        MODE uint32 `json:"mode"`
+    } `json:"cpsr_flags"`
 }
 
-func cpuHandler(w http.ResponseWriter, r *http.Request) {
-    cpu := C.init_cpu()
-    resp := CPUResponse{
-        R0:   uint32(cpu.R0.value),
-        SP:   uint32(cpu.SP.value),
-        PC:   uint32(cpu.PC.value),
-        CPSR: uint32(C.get_cpsr_value(&cpu)),
-    }
+func cpuInitHandler(c *websocket.Conn) {
+    for {
+        messageType, msg, err := c.ReadMessage()
+        if err != nil {
+            log.Println("read error:", err)
+            break
+        }
 
-    json.NewEncoder(w).Encode(resp)
+        if messageType == websocket.TextMessage && string(msg) == "init_cpu" {
+            cpu := C.init_cpu()
+
+            resp := CPUResponse{}
+            for i := 0; i < 16; i++ {
+                resp.R[i] = uint32(cpu.R[i].value)
+            }
+
+            cpsr := uint32(C.get_cpsr_value(&cpu))
+            resp.CPSRFlags.N = (cpsr >> 31) & 1
+            resp.CPSRFlags.Z = (cpsr >> 30) & 1
+            resp.CPSRFlags.C = (cpsr >> 29) & 1
+            resp.CPSRFlags.V = (cpsr >> 28) & 1
+            resp.CPSRFlags.Q = (cpsr >> 27) & 1
+            resp.CPSRFlags.I = (cpsr >> 7) & 1
+            resp.CPSRFlags.F = (cpsr >> 6) & 1
+            resp.CPSRFlags.T = (cpsr >> 5) & 1
+            resp.CPSRFlags.MODE = cpsr & 0x1F
+
+            response, _ := json.Marshal(resp)
+            if err := c.WriteMessage(websocket.TextMessage, response); err != nil {
+                log.Println("write error:", err)
+                break
+            }
+        }
+    }
 }
 
 func main() {
-    http.HandleFunc("/cpu", cpuHandler)
-    log.Println("Server running on http://localhost:8080")
-    http.ListenAndServe(":8080", nil)
+    app := fiber.New()
+
+    app.Get("/ws", websocket.New(cpuInitHandler))
+
+    log.Println("WebSocket server running on ws://localhost:8080/ws")
+    log.Fatal(app.Listen(":8080"))
 }

@@ -2,5 +2,7 @@
 #define ADDRESSES_H
 
 #define DEADBEEF_ADDRESS 0xDEADBEEF
+#define USER_MODE 0b10000
 
+#define NULL_ADDRESS 0x00000000
 #endif

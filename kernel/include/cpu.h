@@ -6,7 +6,7 @@
 
 #pragma pack(push, 1)
 typedef struct {
-    // R0–R12: general purpose registers
+    // R0–R15: general and special purpose registers
     GPR R[16];
     // status registers
     CPSR CPSR;
