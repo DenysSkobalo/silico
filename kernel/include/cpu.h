@@ -2,7 +2,7 @@
 #define CPU_H
 
 #include "registers.h"
-
+#pragma pack(push, 1)
 typedef struct {
     // R0–R12: general purpose registers
 	GPR R0, R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12;
@@ -17,5 +17,6 @@ typedef struct {
 } __attribute__((packed)) ARM_CPU;
 
 ARM_CPU init_cpu();
-
+uint32_t get_cpsr_value(ARM_CPU *cpu);
+#pragma pack(pop)
 #endif

@@ -1,4 +1,6 @@
-#include "utils.h"
+#include "../include/util.h"
+#include "../include/cpu.h"
+#include <stdint.h>
 #include <stdio.h>
 
 void print_binary(uint32_t value, int bits) {
@@ -27,6 +29,15 @@ void print_cpu(const ARM_CPU* cpu) {
     printf("LR  = 0x%08X\n", cpu->LR.value);
     printf("PC  = 0x%08X\n", cpu->PC.value);
     printf("\nCPSR FLAGS:\n");
-    printf("  N=%d Z=%d C=%d V=%d Q=%d\n", cpu->CPSR.N, cpu->CPSR.Z, cpu->CPSR.C, cpu->CPSR.V, cpu->CPSR.Q);
-    printf("  I=%d F=%d T=%d MODE=0x%02X\n", cpu->CPSR.I, cpu->CPSR.F, cpu->CPSR.T, cpu->CPSR.MODE);
+    printf("  N=%d Z=%d C=%d V=%d Q=%d\n", 
+           (cpu->CPSR & CPSR_FLAG_N) != 0, 
+           (cpu->CPSR & CPSR_FLAG_Z) != 0, 
+           (cpu->CPSR & CPSR_FLAG_C) != 0, 
+           (cpu->CPSR & CPSR_FLAG_V) != 0, 
+           (cpu->CPSR & CPSR_FLAG_Q) != 0);
+    printf("  I=%d F=%d T=%d MODE=0x%02X\n", 
+           (cpu->CPSR & CPSR_FLAG_I) != 0, 
+           (cpu->CPSR & CPSR_FLAG_F) != 0, 
+           (cpu->CPSR & CPSR_FLAG_T) != 0, 
+           cpu->CPSR & CPSR_MODE_MASK);
 }

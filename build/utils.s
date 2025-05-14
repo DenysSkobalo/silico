@@ -5,56 +5,39 @@
 _print_binary:                          ; @print_binary
 	.cfi_startproc
 ; %bb.0:
-	sub	sp, sp, #48
+	cmp	w1, #1
+	b.lt	LBB0_4
+; %bb.1:
+	stp	x22, x21, [sp, #-48]!           ; 16-byte Folded Spill
+	stp	x20, x19, [sp, #16]             ; 16-byte Folded Spill
 	stp	x29, x30, [sp, #32]             ; 16-byte Folded Spill
 	add	x29, sp, #32
 	.cfi_def_cfa w29, 16
 	.cfi_offset w30, -8
 	.cfi_offset w29, -16
-	stur	w0, [x29, #-4]
-	stur	w1, [x29, #-8]
-	ldur	w8, [x29, #-8]
-	subs	w8, w8, #1
-	stur	w8, [x29, #-12]
-	b	LBB0_1
-LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
-	ldur	w8, [x29, #-12]
-	subs	w8, w8, #0
-	cset	w8, lt
-	tbnz	w8, #0, LBB0_4
-	b	LBB0_2
-LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldur	w8, [x29, #-4]
-	ldur	w10, [x29, #-12]
-	mov	w9, #1                          ; =0x1
-	lsl	w9, w9, w10
-	ands	w8, w8, w9
-	cset	w10, ne
-	mov	w9, #48                         ; =0x30
-	mov	w8, #49                         ; =0x31
-	and	w10, w10, #0x1
-	ands	w10, w10, #0x1
-	csel	w10, w8, w9, ne
-	mov	x9, sp
-                                        ; implicit-def: $x8
-	mov	x8, x10
-	str	x8, [x9]
-	adrp	x0, l_.str@PAGE
-	add	x0, x0, l_.str@PAGEOFF
-	bl	_printf
-	b	LBB0_3
-LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldur	w8, [x29, #-12]
-	subs	w8, w8, #1
-	stur	w8, [x29, #-12]
-	b	LBB0_1
-LBB0_4:
-	adrp	x0, l_.str.1@PAGE
-	add	x0, x0, l_.str.1@PAGEOFF
-	bl	_printf
+	.cfi_offset w19, -24
+	.cfi_offset w20, -32
+	.cfi_offset w21, -40
+	.cfi_offset w22, -48
+	mov	x19, x0
+	add	w20, w1, #1
+	mov	w21, #48                        ; =0x30
+LBB0_2:                                 ; =>This Inner Loop Header: Depth=1
+	sub	w8, w20, #2
+	lsr	w8, w19, w8
+	tst	w8, #0x1
+	cinc	w0, w21, ne
+	bl	_putchar
+	sub	w20, w20, #1
+	cmp	w20, #1
+	b.hi	LBB0_2
+; %bb.3:
 	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
-	add	sp, sp, #48
-	ret
+	ldp	x20, x19, [sp, #16]             ; 16-byte Folded Reload
+	ldp	x22, x21, [sp], #48             ; 16-byte Folded Reload
+LBB0_4:
+	mov	w0, #10                         ; =0xa
+	b	_putchar
 	.cfi_endproc
                                         ; -- End function
 	.globl	_print_cpu                      ; -- Begin function print_cpu
@@ -62,248 +45,191 @@ LBB0_4:
 _print_cpu:                             ; @print_cpu
 	.cfi_startproc
 ; %bb.0:
-	sub	sp, sp, #64
-	stp	x29, x30, [sp, #48]             ; 16-byte Folded Spill
-	add	x29, sp, #48
+	sub	sp, sp, #80
+	stp	x20, x19, [sp, #48]             ; 16-byte Folded Spill
+	stp	x29, x30, [sp, #64]             ; 16-byte Folded Spill
+	add	x29, sp, #64
 	.cfi_def_cfa w29, 16
 	.cfi_offset w30, -8
 	.cfi_offset w29, -16
-	stur	x0, [x29, #-8]
-	adrp	x0, l_.str.2@PAGE
-	add	x0, x0, l_.str.2@PAGEOFF
-	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	.cfi_offset w19, -24
+	.cfi_offset w20, -32
+	mov	x19, x0
+Lloh0:
+	adrp	x0, l_str@PAGE
+Lloh1:
+	add	x0, x0, l_str@PAGEOFF
+	bl	_puts
+	ldr	w8, [x19]
+	str	x8, [sp]
+Lloh2:
 	adrp	x0, l_.str.3@PAGE
+Lloh3:
 	add	x0, x0, l_.str.3@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #4]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #4]
+	str	x8, [sp]
+Lloh4:
 	adrp	x0, l_.str.4@PAGE
+Lloh5:
 	add	x0, x0, l_.str.4@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #8]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #8]
+	str	x8, [sp]
+Lloh6:
 	adrp	x0, l_.str.5@PAGE
+Lloh7:
 	add	x0, x0, l_.str.5@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #12]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #12]
+	str	x8, [sp]
+Lloh8:
 	adrp	x0, l_.str.6@PAGE
+Lloh9:
 	add	x0, x0, l_.str.6@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #16]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #16]
+	str	x8, [sp]
+Lloh10:
 	adrp	x0, l_.str.7@PAGE
+Lloh11:
 	add	x0, x0, l_.str.7@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #20]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #20]
+	str	x8, [sp]
+Lloh12:
 	adrp	x0, l_.str.8@PAGE
+Lloh13:
 	add	x0, x0, l_.str.8@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #24]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #24]
+	str	x8, [sp]
+Lloh14:
 	adrp	x0, l_.str.9@PAGE
+Lloh15:
 	add	x0, x0, l_.str.9@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #28]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #28]
+	str	x8, [sp]
+Lloh16:
 	adrp	x0, l_.str.10@PAGE
+Lloh17:
 	add	x0, x0, l_.str.10@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #32]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #32]
+	str	x8, [sp]
+Lloh18:
 	adrp	x0, l_.str.11@PAGE
+Lloh19:
 	add	x0, x0, l_.str.11@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #36]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #36]
+	str	x8, [sp]
+Lloh20:
 	adrp	x0, l_.str.12@PAGE
+Lloh21:
 	add	x0, x0, l_.str.12@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #40]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #40]
+	str	x8, [sp]
+Lloh22:
 	adrp	x0, l_.str.13@PAGE
+Lloh23:
 	add	x0, x0, l_.str.13@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #44]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #44]
+	str	x8, [sp]
+Lloh24:
 	adrp	x0, l_.str.14@PAGE
+Lloh25:
 	add	x0, x0, l_.str.14@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #48]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #48]
+	str	x8, [sp]
+Lloh26:
 	adrp	x0, l_.str.15@PAGE
+Lloh27:
 	add	x0, x0, l_.str.15@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #52]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #52]
+	str	x8, [sp]
+Lloh28:
 	adrp	x0, l_.str.16@PAGE
+Lloh29:
 	add	x0, x0, l_.str.16@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #56]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #56]
+	str	x8, [sp]
+Lloh30:
 	adrp	x0, l_.str.17@PAGE
+Lloh31:
 	add	x0, x0, l_.str.17@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w9, [x8, #60]
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	mov	x9, sp
-	str	x8, [x9]
+	ldr	w8, [x19, #60]
+	str	x8, [sp]
+Lloh32:
 	adrp	x0, l_.str.18@PAGE
+Lloh33:
 	add	x0, x0, l_.str.18@PAGEOFF
 	bl	_printf
-	adrp	x0, l_.str.19@PAGE
-	add	x0, x0, l_.str.19@PAGEOFF
-	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	and	w14, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #1
-	and	w13, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #2
-	and	w12, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #3
-	and	w11, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #4
-	and	w10, w8, #0x1
-	mov	x9, sp
-                                        ; implicit-def: $x8
-	mov	x8, x14
-	str	x8, [x9]
-                                        ; implicit-def: $x8
-	mov	x8, x13
-	str	x8, [x9, #8]
-                                        ; implicit-def: $x8
-	mov	x8, x12
-	str	x8, [x9, #16]
-                                        ; implicit-def: $x8
-	mov	x8, x11
-	str	x8, [x9, #24]
-                                        ; implicit-def: $x8
-	mov	x8, x10
-	str	x8, [x9, #32]
+Lloh34:
+	adrp	x0, l_str.22@PAGE
+Lloh35:
+	add	x0, x0, l_str.22@PAGEOFF
+	bl	_puts
+	ldr	w8, [x19, #64]
+	lsr	w9, w8, #31
+	ubfx	w10, w8, #30, #1
+	ubfx	w11, w8, #29, #1
+	ubfx	w12, w8, #28, #1
+	ubfx	w8, w8, #27, #1
+	stp	x12, x8, [sp, #24]
+	stp	x10, x11, [sp, #8]
+	str	x9, [sp]
+Lloh36:
 	adrp	x0, l_.str.20@PAGE
+Lloh37:
 	add	x0, x0, l_.str.20@PAGEOFF
 	bl	_printf
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #8
-	and	w13, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #9
-	and	w12, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #10
-	and	w11, w8, #0x1
-	ldur	x8, [x29, #-8]
-	ldr	w8, [x8, #64]
-	lsr	w8, w8, #16
-	and	w10, w8, #0x1f
-	mov	x9, sp
-                                        ; implicit-def: $x8
-	mov	x8, x13
-	str	x8, [x9]
-                                        ; implicit-def: $x8
-	mov	x8, x12
-	str	x8, [x9, #8]
-                                        ; implicit-def: $x8
-	mov	x8, x11
-	str	x8, [x9, #16]
-                                        ; implicit-def: $x8
-	mov	x8, x10
-	str	x8, [x9, #24]
+	ldr	w8, [x19, #64]
+	ubfx	w9, w8, #7, #1
+	ubfx	w10, w8, #6, #1
+	ubfx	w11, w8, #5, #1
+	and	w8, w8, #0x1f
+	stp	x11, x8, [sp, #16]
+	stp	x9, x10, [sp]
+Lloh38:
 	adrp	x0, l_.str.21@PAGE
+Lloh39:
 	add	x0, x0, l_.str.21@PAGEOFF
 	bl	_printf
-	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
-	add	sp, sp, #64
+	ldp	x29, x30, [sp, #64]             ; 16-byte Folded Reload
+	ldp	x20, x19, [sp, #48]             ; 16-byte Folded Reload
+	add	sp, sp, #80
 	ret
+	.loh AdrpAdd	Lloh38, Lloh39
+	.loh AdrpAdd	Lloh36, Lloh37
+	.loh AdrpAdd	Lloh34, Lloh35
+	.loh AdrpAdd	Lloh32, Lloh33
+	.loh AdrpAdd	Lloh30, Lloh31
+	.loh AdrpAdd	Lloh28, Lloh29
+	.loh AdrpAdd	Lloh26, Lloh27
+	.loh AdrpAdd	Lloh24, Lloh25
+	.loh AdrpAdd	Lloh22, Lloh23
+	.loh AdrpAdd	Lloh20, Lloh21
+	.loh AdrpAdd	Lloh18, Lloh19
+	.loh AdrpAdd	Lloh16, Lloh17
+	.loh AdrpAdd	Lloh14, Lloh15
+	.loh AdrpAdd	Lloh12, Lloh13
+	.loh AdrpAdd	Lloh10, Lloh11
+	.loh AdrpAdd	Lloh8, Lloh9
+	.loh AdrpAdd	Lloh6, Lloh7
+	.loh AdrpAdd	Lloh4, Lloh5
+	.loh AdrpAdd	Lloh2, Lloh3
+	.loh AdrpAdd	Lloh0, Lloh1
 	.cfi_endproc
                                         ; -- End function
 	.section	__TEXT,__cstring,cstring_literals
-l_.str:                                 ; @.str
-	.asciz	"%c"
-
-l_.str.1:                               ; @.str.1
-	.asciz	"\n"
-
-l_.str.2:                               ; @.str.2
-	.asciz	"\n=== ARM CPU STATE ===\n"
-
 l_.str.3:                               ; @.str.3
 	.asciz	"R0  = 0x%08X\n"
 
@@ -352,13 +278,16 @@ l_.str.17:                              ; @.str.17
 l_.str.18:                              ; @.str.18
 	.asciz	"PC  = 0x%08X\n"
 
-l_.str.19:                              ; @.str.19
-	.asciz	"\nCPSR FLAGS:\n"
-
 l_.str.20:                              ; @.str.20
 	.asciz	"  N=%d Z=%d C=%d V=%d Q=%d\n"
 
 l_.str.21:                              ; @.str.21
 	.asciz	"  I=%d F=%d T=%d MODE=0x%02X\n"
+
+l_str:                                  ; @str
+	.asciz	"\n=== ARM CPU STATE ==="
+
+l_str.22:                               ; @str.22
+	.asciz	"\nCPSR FLAGS:"
 
 .subsections_via_symbols

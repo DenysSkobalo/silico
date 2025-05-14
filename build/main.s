@@ -5,24 +5,30 @@
 _main:                                  ; @main
 	.cfi_startproc
 ; %bb.0:
-	sub	sp, sp, #112
-	stp	x29, x30, [sp, #96]             ; 16-byte Folded Spill
-	add	x29, sp, #96
+	sub	sp, sp, #96
+	stp	x29, x30, [sp, #80]             ; 16-byte Folded Spill
+	add	x29, sp, #80
 	.cfi_def_cfa w29, 16
 	.cfi_offset w30, -8
 	.cfi_offset w29, -16
-	mov	w8, #0                          ; =0x0
-	str	w8, [sp, #16]                   ; 4-byte Folded Spill
-	stur	wzr, [x29, #-4]
-	add	x8, sp, #20
-	str	x8, [sp, #8]                    ; 8-byte Folded Spill
+	add	x8, sp, #12
 	bl	_init_cpu
-	ldr	x0, [sp, #8]                    ; 8-byte Folded Reload
+Lloh0:
+	adrp	x0, l_str@PAGE
+Lloh1:
+	add	x0, x0, l_str@PAGEOFF
+	bl	_puts
+	add	x0, sp, #12
 	bl	_print_cpu
-	ldr	w0, [sp, #16]                   ; 4-byte Folded Reload
-	ldp	x29, x30, [sp, #96]             ; 16-byte Folded Reload
-	add	sp, sp, #112
+	mov	w0, #0                          ; =0x0
+	ldp	x29, x30, [sp, #80]             ; 16-byte Folded Reload
+	add	sp, sp, #96
 	ret
+	.loh AdrpAdd	Lloh0, Lloh1
 	.cfi_endproc
                                         ; -- End function
+	.section	__TEXT,__cstring,cstring_literals
+l_str:                                  ; @str
+	.asciz	"ARMv7 or Cortex-M"
+
 .subsections_via_symbols

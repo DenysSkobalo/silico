@@ -5,27 +5,22 @@
 _init_cpu:                              ; @init_cpu
 	.cfi_startproc
 ; %bb.0:
-	sub	sp, sp, #32
-	stp	x29, x30, [sp, #16]             ; 16-byte Folded Spill
-	add	x29, sp, #16
-	.cfi_def_cfa w29, 16
-	.cfi_offset w30, -8
-	.cfi_offset w29, -16
-	mov	x0, x8
-	str	x0, [sp, #8]                    ; 8-byte Folded Spill
-	mov	x2, #72                         ; =0x48
-	mov	w1, #0                          ; =0x0
-	bl	_memset
-	ldr	x9, [sp, #8]                    ; 8-byte Folded Reload
-	str	wzr, [x9, #60]
-	mov	w8, #-4                         ; =0xfffffffc
-	str	w8, [x9, #52]
-	ldr	w8, [x9, #64]
-	and	w8, w8, #0xffe0ffff
-	orr	w8, w8, #0x100000
-	str	w8, [x9, #64]
-	ldp	x29, x30, [sp, #16]             ; 16-byte Folded Reload
-	add	sp, sp, #32
+	movi.2d	v0, #0000000000000000
+	stp	q0, q0, [x8, #32]
+	stp	q0, q0, [x8]
+	mov	w9, #-4                         ; =0xfffffffc
+	str	w9, [x8, #52]
+	mov	w9, #16                         ; =0x10
+	str	w9, [x8, #64]
+	ret
+	.cfi_endproc
+                                        ; -- End function
+	.globl	_get_cpsr_value                 ; -- Begin function get_cpsr_value
+	.p2align	2
+_get_cpsr_value:                        ; @get_cpsr_value
+	.cfi_startproc
+; %bb.0:
+	ldr	w0, [x0, #64]
 	ret
 	.cfi_endproc
                                         ; -- End function
