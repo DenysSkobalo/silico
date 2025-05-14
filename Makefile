@@ -2,7 +2,7 @@
 
 BUILD_DIR = build
 BINARY = main
-SRC = kernel/src/main.c kernel/src/registers.c kernel/src/cpu.c kernel/src/utils.c
+SRC = kernel/src/main.c kernel/src/cpu.c kernel/src/utils.c
 INCLUDE_DIR = include
 CC = gcc
 CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -O2

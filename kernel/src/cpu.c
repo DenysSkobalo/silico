@@ -1,9 +1,13 @@
 #include "../include/cpu.h"
+#include "../include/flags.h"
 
 ARM_CPU init_cpu() {
     ARM_CPU cpu = {0};
-    cpu.PC.value = 0x00000000;
-    cpu.SP.value = 0xFFFFFFFC;
+    // cpu.R[15].value = 0x00000000;
+    // cpu.R[13].value = 0xFFFFFFFC; 
+    PCR(&cpu).value = 0x00000000;
+    SPR(&cpu).value = 0xFFFFFFFC;
+
     cpu.CPSR = (cpu.CPSR & ~CPSR_MODE_MASK) | 0b10000; // User mode
     return cpu;
 }

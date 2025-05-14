@@ -1,0 +1,6 @@
+#ifndef ADDRESSES_H
+#define ADDRESSES_H
+
+#define DEADBEEF_ADDRESS 0xDEADBEEF
+
+#endif
