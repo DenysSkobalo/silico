@@ -1,4 +1,4 @@
-.PHONY: run clean compile server graph all
+.PHONY: run clean compile server graph all asm
 
 BUILD_DIR = build
 BINARY = main
@@ -36,3 +36,8 @@ server:
 
 graph:
 	@gource --title "CSEM" --highlight-users -1280x720 -r 60 -s 0.5
+
+asm: 
+	@aarch64-linux-gnu-as -o somethings.o ./asm/arm64/somethings.s
+	@aarch64-linux-gnu-ld -o somethings somethings.o
+	@qemu-aarch64 ./hello
