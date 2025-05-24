@@ -9,7 +9,8 @@ CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -O2
 AR = ar
 ARFLAGS = rcs
 
-all: run
+# all: run
+all: asm
 
 run: clean compile
 	@./$(BUILD_DIR)/$(BINARY)
@@ -37,7 +38,7 @@ server:
 graph:
 	@gource --title "CSEM" --highlight-users -1280x720 -r 60 -s 0.5
 
-asm: 
-	@aarch64-linux-gnu-as -o somethings.o ./asm/arm64/somethings.s
-	@aarch64-linux-gnu-ld -o somethings somethings.o
-	@qemu-aarch64 ./hello
+asm:
+	@as -arch arm64 -o somethings.o ./asm/arm64/somethings.s
+	@ld -o somethings somethings.o -lSystem -syslibroot `xcrun -sdk macosx --show-sdk-path` -e _start -arch arm64
+	@./somethings
