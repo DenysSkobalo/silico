@@ -1,15 +1,15 @@
-.PHONY: run clean compile server all
+.PHONY: run clean compile server graph all
 
 BUILD_DIR = build
 BINARY = main
-SRC = kernel/src/main.c kernel/src/cpu.c kernel/src/utils.c
+SRC = kernel/cpu/src/main.c kernel/cpu/src/cpu.c 
 INCLUDE_DIR = include
 CC = gcc
 CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -O2
 AR = ar
 ARFLAGS = rcs
 
-all: compile
+all: run
 
 run: clean compile
 	@./$(BUILD_DIR)/$(BINARY)
@@ -33,3 +33,6 @@ compile: $(SRC)
 
 server:
 	@go run backend/cmd/server/main.go
+
+graph:
+	@gource --title "CSEM" --highlight-users -1280x720 -r 60 -s 0.5
