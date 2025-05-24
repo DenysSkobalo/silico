@@ -36,7 +36,7 @@ server:
 	@go run backend/cmd/server/main.go
 
 graph:
-	@gource --title "CSEM" --highlight-users -1280x720 -r 60 -s 0.5
+	@gource --title "silico" --highlight-users -1280x720 -r 60 -s 0.5
 
 asm:
 	@as -arch arm64 -o somethings.o ./asm/arm64/somethings.s
