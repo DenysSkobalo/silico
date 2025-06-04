@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <string.h>
-#include "../../cpu/include/cpu.h"
+#include "../../include/cpu.h"
+#include "../../include/memory.h"
 
 #define RESET_VECTOR 0x0
+#define BITS(val, hi, lo) (((val) >> (lo)) & ((1ULL << ((hi)-(lo)+1)) - 1)) // Extract bits helper macro
+#define OPCODE_MASK    0xFFC00000
+#define OPCODE_MOVZ    0xD2800000  // MOVZ Xd, #imm
+#define OPCODE_ADD_IMM 0x91000000  // ADD Xd, Xn, #imm
+#define OPCODE_HLT     0xD4400000  // HLT (exception)
 
 void cpu_init(CPU *cpu) {
     if(!cpu) return;
@@ -95,4 +101,34 @@ void cpu_dump(const CPU* cpu) {
     // Optional cycle count
     printf("Cycles: %llu\n", (unsigned long long)cpu->cycles);
     printf("Halted: %s\n", cpu->halted ? "yes" : "no");
+}
+
+void cpu_step(CPU *cpu) {
+    // 1. Fetch
+    uint32_t instr = memory_read32(cpu->pc);
+
+    // 2. Decode + Execute
+    if ((instr & 0xFFC00000) == OPCODE_MOVZ) {
+        // MOVZ Xd, #imm
+        uint8_t rd = (instr >> 0) & 0x1F;
+        uint16_t imm16 = (instr >> 5) & 0xFFFF;
+        cpu->x[rd] = imm16;
+        cpu->pc += 4;
+    }
+    else if ((instr & 0xFF000000) == OPCODE_ADD_IMM) {
+        // ADD Xd, Xn, #imm
+        uint8_t rd = (instr >> 0) & 0x1F;
+        uint8_t rn = (instr >> 5) & 0x1F;
+        uint16_t imm12 = (instr >> 10) & 0xFFF;
+        cpu->x[rd] = cpu->x[rn] + imm12;
+        cpu->pc += 4;
+    }
+    else if (instr == OPCODE_HLT) {
+        // HLT instruction — halt CPU
+        cpu->halted = 1;
+    }
+    else {
+        printf("Unknown instruction 0x%08X at PC=0x%016llX\n", instr, cpu->pc);
+        cpu->halted = 1;
+    }
 }

@@ -36,3 +36,5 @@ Thumbs.db
 
 # Ignore Go test cache
 go-test-cache/
+
+logs.txt

@@ -54,5 +54,6 @@ typedef struct {
 // === API ===
 void cpu_init(CPU* cpu);           // Initialize CPU
 void cpu_dump(const CPU* cpu);     // Print CPU state for debugging
+void cpu_step(CPU* cpu);
 
 #endif // CPU_H
