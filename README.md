@@ -1,8 +1,10 @@
 # Silico
 
-- Note: testing takes place on the machine "OS: MacOS Darwin Kernel Version 23.6.0 arm64"
+- Target ISA: ARMv9-A CPU (AArch64)
 
-Emulation ARM (arm64)
+## Testing platform:
+- OS: `macOS Darwin 23.6.0`
+- Arch: `arm64` (Apple M1)
 
 ## References
 - https://developer.arm.com/documentation/ddi0487/latest

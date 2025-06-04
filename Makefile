@@ -9,8 +9,8 @@ CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -O2
 AR = ar
 ARFLAGS = rcs
 
-# all: run
-all: asm
+all: run
+# all: asm
 
 run: clean compile
 	@./$(BUILD_DIR)/$(BINARY)

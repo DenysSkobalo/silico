@@ -3,6 +3,8 @@ build/
 *.o
 *.a
 #*.s
+./somethings.o
+
 # Ignore Go module files
 *.mod
 *.sum
