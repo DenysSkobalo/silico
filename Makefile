@@ -19,16 +19,16 @@ run: compile
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	@echo "🧹 Cleaned build files."
+	@echo "Cleaned build files."
 
 compile:
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $(BUILD_DIR)/$(BINARY) $(SRC)
-	@echo "✅ Compilation complete."
+	@echo "Compilation complete."
 
 asm:
 	@mkdir -p $(BUILD_DIR)/asm
 	@for file in $(SRC); do \
 		$(CC) $(CFLAGS) -S $$file -o $(BUILD_DIR)/asm/`basename $$file .c`.s; \
 	done
-	@echo "🛠 Assembly code generated in $(BUILD_DIR)/asm/"
+	@echo "Assembly code generated in $(BUILD_DIR)/asm/"

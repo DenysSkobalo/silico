@@ -14,7 +14,7 @@ int main() {
 
     cpu.pc = 0x00;
 
-    while(!cpu.halted) {
+   while(!cpu.halted) {
         cpu_step(&cpu);
     }
 
