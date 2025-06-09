@@ -1,21 +1,20 @@
 #include <stdio.h>
 #include <string.h>
 #include "../../kernel/include/cpu.h"
-#include "../../kernel/include/memory.h"
-#include "../include/ipc.h"
+// #include "../../kernel/include/memory.h" 
+#include "../include/ipc.h" 
+#include "../include/commands.h" 
 
-static CPU cpu;
+static CPU cpu; 
 
 void ipc_loop() {
     char buffer[1024];
+
     while (fgets(buffer, sizeof(buffer), stdin)) {
         if (strstr(buffer, "\"cmd\": \"init\"")) {
-            memory_init();
-            cpu_init(&cpu);
-            printf("{\"status\": \"ok\"}\n");
-            fflush(stdout);
+            cmd_init(&cpu);
         } else if (strstr(buffer, "\"cmd\": \"dump\"")) {
-            cpu_dump_json(&cpu);
+            cmd_dump(&cpu);
         } else {
             printf("{\"error\": \"unknown command\"}\n");
             fflush(stdout);

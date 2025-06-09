@@ -8,7 +8,7 @@ import (
 	"os/exec"
 )
 
-func main() {
+func cli() {
 	cmd := exec.Command("./build/main")
 
 	stdin, err := cmd.StdinPipe()
@@ -25,14 +25,12 @@ func main() {
 		panic(err)
 	}
 
-	// Надсилаємо команди init і dump
 	io.WriteString(stdin, `{"cmd": "init"}`+"\n")
 	io.WriteString(stdin, `{"cmd": "dump"}`+"\n")
 
-	// Зчитуємо відповіді
 	for scanner.Scan() {
 		line := scanner.Text()
-		fmt.Println("Raw line:", line)
+		// fmt.Println("Raw line:", line)
 
 		var resp map[string]interface{}
 		if err := json.Unmarshal([]byte(line), &resp); err != nil {
@@ -40,13 +38,11 @@ func main() {
 			continue
 		}
 
-		// Вивід ініціалізації
 		if status, ok := resp["status"]; ok {
 			fmt.Printf("Init response: status=%v\n", status)
 			continue
 		}
 
-		// Вивід дампу CPU
 		if _, ok := resp["x"]; ok {
 			fmt.Println("CPU State:")
 			fmt.Printf("  PC:     %v\n", resp["pc"])
@@ -55,7 +51,6 @@ func main() {
 			fmt.Printf("  Cycles: %v\n", resp["cycles"])
 			fmt.Printf("  Halted: %v\n", resp["halted"])
 
-			// X-регістри
 			if xList, ok := resp["x"].([]interface{}); ok {
 				fmt.Print("  X:     ")
 				for i, val := range xList {
@@ -67,7 +62,6 @@ func main() {
 				fmt.Println()
 			}
 
-			// PSTATE
 			if pstate, ok := resp["pstate"].(map[string]interface{}); ok {
 				fmt.Print("  Flags: ")
 				for _, flag := range []string{"N", "Z", "C", "V", "D", "A", "I", "F", "IL", "SS"} {

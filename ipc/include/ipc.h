@@ -6,5 +6,4 @@
 void ipc_loop(void);
 void cpu_dump_json(const CPU *cpu);
 
-
 #endif 

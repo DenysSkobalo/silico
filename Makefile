@@ -1,4 +1,4 @@
-.PHONY: all run clean compile backend
+.PHONY: all run clean compile backend cli
 
 BUILD_DIR = build
 BINARY = main
@@ -26,7 +26,10 @@ compile:
 	@echo "Compilation complete."
 
 backend:
-	@go run ./backend/main.go
+	@cd backend/ && go run ./cmd/server/main.go
+
+cli: 
+	@go run ./backend/cmd/cli/cli.go
 
 clean:
 	@rm -rf $(BUILD_DIR)
