@@ -15,47 +15,66 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		panic(err)
 	}
+	scanner := bufio.NewScanner(stdout)
 
 	if err := cmd.Start(); err != nil {
 		panic(err)
 	}
 
-	_, _ = io.WriteString(stdin, `{"cmd": "init"}`+"\n")
+	// Надсилаємо команди init і dump
+	io.WriteString(stdin, `{"cmd": "init"}`+"\n")
+	io.WriteString(stdin, `{"cmd": "dump"}`+"\n")
 
-	scanner := bufio.NewScanner(stdout)
-
+	// Зчитуємо відповіді
 	for scanner.Scan() {
-		var initRes map[string]interface{}
-		err := json.Unmarshal(scanner.Bytes(), &initRes)
-		if err != nil {
-			fmt.Println("Invalid JSON from `init`:", scanner.Text())
+		line := scanner.Text()
+		fmt.Println("Raw line:", line)
+
+		var resp map[string]interface{}
+		if err := json.Unmarshal([]byte(line), &resp); err != nil {
+			fmt.Println("Invalid JSON:", err)
 			continue
 		}
-		fmt.Println("`init` response:", initRes)
-		break
-	}
 
-	_, _ = io.WriteString(stdin, `{"cmd": "dump"}`+"\n")
+		// Вивід ініціалізації
+		if status, ok := resp["status"]; ok {
+			fmt.Printf("Init response: status=%v\n", status)
+			continue
+		}
 
-	if scanner.Scan() {
-		var dump map[string]interface{}
-		err := json.Unmarshal(scanner.Bytes(), &dump)
-		if err != nil {
-			fmt.Println("Invalid JSON from dump:", scanner.Text())
-		} else {
-			fmt.Println("CPU Dump:")
-			fmt.Printf("  PC: %v\n", dump["pc"])
-			fmt.Printf("  SP: %v\n", dump["sp"])
-			fmt.Printf("  X:  %v\n", dump["x"])
-			fmt.Printf("  Flags: %v\n", dump["pstate"])
-			fmt.Printf("  EL:    %v\n", dump["current_el"])
-			fmt.Printf("  Cycles: %v\n", dump["cycles"])
-			fmt.Printf("  Halted: %v\n", dump["halted"])
+		// Вивід дампу CPU
+		if _, ok := resp["x"]; ok {
+			fmt.Println("CPU State:")
+			fmt.Printf("  PC:     %v\n", resp["pc"])
+			fmt.Printf("  SP:     %v\n", resp["sp"])
+			fmt.Printf("  EL:     %v\n", resp["current_el"])
+			fmt.Printf("  Cycles: %v\n", resp["cycles"])
+			fmt.Printf("  Halted: %v\n", resp["halted"])
+
+			// X-регістри
+			if xList, ok := resp["x"].([]interface{}); ok {
+				fmt.Print("  X:     ")
+				for i, val := range xList {
+					fmt.Printf("X%-2d=%-5v ", i, val)
+					if (i+1)%4 == 0 {
+						fmt.Print("\n         ")
+					}
+				}
+				fmt.Println()
+			}
+
+			// PSTATE
+			if pstate, ok := resp["pstate"].(map[string]interface{}); ok {
+				fmt.Print("  Flags: ")
+				for _, flag := range []string{"N", "Z", "C", "V", "D", "A", "I", "F", "IL", "SS"} {
+					fmt.Printf("%s=%v ", flag, pstate[flag])
+				}
+				fmt.Println()
+			}
 		}
 	}
 
