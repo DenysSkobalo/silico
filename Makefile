@@ -1,4 +1,4 @@
-.PHONY: all run clean compile asm
+.PHONY: all run clean compile backend asm
 
 BUILD_DIR = build
 BINARY = main
@@ -25,6 +25,9 @@ compile:
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $(BUILD_DIR)/$(BINARY) $(SRC)
 	@echo "Compilation complete."
+
+backend:
+	@go run ./backend/main.go
 
 asm:
 	@mkdir -p $(BUILD_DIR)/asm

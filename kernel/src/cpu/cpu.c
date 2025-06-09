@@ -1,10 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "../../include/cpu.h"
 #include "../../include/memory.h"
 
 #define RESET_VECTOR 0x0
-#define BITS(val, hi, lo) (((val) >> (lo)) & ((1ULL << ((hi)-(lo)+1)) - 1)) // Extract bits helper macro
 #define OPCODE_MASK    0xFFC00000
 #define OPCODE_MOVZ    0xD2800000  // MOVZ Xd, #imm
 #define OPCODE_ADD_IMM 0x91000000  // ADD Xd, Xn, #imm
