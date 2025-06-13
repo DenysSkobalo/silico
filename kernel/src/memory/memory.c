@@ -1,3 +1,7 @@
+// TODO: bounds check
+// TODO: alignment checks
+// TODO: memory map
+
 #include <string.h>
 #include <stdio.h>
 #include "../../include/memory.h"

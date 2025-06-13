@@ -1,14 +1,18 @@
+// Stage 1: CPU struct -> cpu_init -> cpu_dump (DONE!)
+
+// Stage 2 `Execution core`: fetch -> decode -> execute
+// Stage 3 `ALU`
+// Stage 4 `Threads Management`
+// Stage 5 `Halt/Exception/Debug`
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../include/cpu.h"
-#include "../../include/memory.h"
+#include "../../include/core.h"
+// #include "../../include/memory.h"
 
 #define RESET_VECTOR 0x0
-#define OPCODE_MASK    0xFFC00000
-#define OPCODE_MOVZ    0xD2800000  // MOVZ Xd, #imm
-#define OPCODE_ADD_IMM 0x91000000  // ADD Xd, Xn, #imm
-#define OPCODE_HLT     0xD4400000  // HLT (exception)
 
 void cpu_init(CPU *cpu) {
     if(!cpu) return;
@@ -103,62 +107,20 @@ void cpu_dump(const CPU* cpu) {
     printf("Halted: %s\n", cpu->halted ? "yes" : "no");
 }
 
-// instr := 0xD2800020
-// 1  1  0  1  0  0  1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 1 0 0 0 0 0
-// 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-// Mask: 0xFFC00000
-// 1  1  1  1  1  1  1  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 0 0 0 0 0 0
-// 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-//
-// instr & OxFFC00000 = 0xD2800000 == OPCODE_MOVZ
-// 1  1  0  1  0  0  1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 0 0 0 0 0 0
-// rd = instr & 0x1F
-// 1  1  0  1  0  0  1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 1 0 0 0 0 0
-// 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-// 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 0 1 1 1 1 1
-// 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-//                                                                             ^ ^ ^ ^ ^
-// rd := 0 0 0 0 0 = 0
-//
-// imm16 = (instr >> 5)
-// 1  1  0  1  0  0  1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 1 0 0 0 0 0
-// 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-//
-// 0  0  0  0  0  1  1  0  1  0  0  1  0  1  0  0  0  0  0  0  0  0  0 0 0 0 0 0 0 0 0 1
-// 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-// 
-// & 0xFFFF
-// 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  1  1  1  1 1 1 1 1 1 1 1 1 1 
-//                                                 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-// 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0 0 0 0 0 0 0 0 1
-// imm16 := 1
+void cpu_tick(CPU *cpu) {
+    if (cpu->halted) return;
 
-void cpu_step(CPU *cpu) {
-    // 1. Fetch
-    uint32_t instr = memory_read32(cpu->pc);
+    uint32_t instr = fetch(cpu);
+    printf("CPU tick: fetched: 0x%08X\n", instr);
 
-    // 2. Decode + Execute
-    if ((instr & 0xFFC00000) == OPCODE_MOVZ) {
-        // MOVZ Xd, #imm
-        uint8_t rd = (instr >> 0) & 0x1F;
-        uint16_t imm16 = (instr >> 5) & 0xFFFF;
-        cpu->x[rd] = imm16;
-        cpu->pc += 4;
-    }
-    else if ((instr & 0xFF000000) == OPCODE_ADD_IMM) {
-        // ADD Xd, Xn, #imm
-        uint8_t rd = (instr >> 0) & 0x1F;
-        uint8_t rn = (instr >> 5) & 0x1F;
-        uint16_t imm12 = (instr >> 10) & 0xFFF;
-        cpu->x[rd] = cpu->x[rn] + imm12;
-        cpu->pc += 4;
-    }
-    else if (instr == OPCODE_HLT) {
-        // HLT instruction — halt CPU
-        cpu->halted = 1;
-    }
-    else {
-        printf("Unknown instruction 0x%08X at PC=0x%016llX\n", instr, cpu->pc);
-        cpu->halted = 1;
-    }
+    DecodeInstr d = decode(instr);
+    printf("CPU tick: decoded: opcode=%d, rd=%d, rn=%d, rm=%d\n", d.opcode, d.rd, d.rn, d.rm);
+
+    execute(cpu, d);
+    update_pc(cpu, d);
+    printf("CPU tick: execute: halted = %d\n", cpu->halted);
+
 }
+
+// TODO: ALU
+// TODO: Instruction Decode
