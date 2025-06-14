@@ -1,4 +1,3 @@
-// #include <stdio.h>
 #include <string.h>
 #include "include/memory.h"
 #include "include/cpu.h"
@@ -12,13 +11,11 @@ int main() {
     CPU cpu;
     cpu_init(&cpu);
 
-    // cpu.x[1] = 2;
-    // cpu.x[2] = 2;
 
     memory_write32(0x00, 0xD2800041);
     memory_write32(0x04, 0xD2800062);
     memory_write32(0x08, 0x8B020020);
-    memory_write32(0x0C, 0x910010);
+    memory_write32(0x0C, 0x91001000);
     memory_write32(0x10, 0xD4400000);
 
     cpu.pc = 0x00;

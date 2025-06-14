@@ -14,6 +14,8 @@
 #define IMM12_MASK  0xFFF // 12 bits: for immediate value
 #define IMM16_MASK  0xFFFF // 16 bits: for immediate value (0-65535)
 #define OPCODE_Rformat_MASK 0xFFE00000 // mask of high 11 bits for determining an opecode of arichmetic instructions
+#define OPCODE_HLT_MASK     0xFFFFFC00
+
 
 typedef enum {
     OPCODE_UNKNOWN,

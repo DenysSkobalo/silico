@@ -14,7 +14,7 @@ Opcode extract_opcode(uint32_t instr) {
     return OPCODE_UNKNOWN;
 }
 
-// TODO: Fetch: read an instruction from memory[PC]
+// Fetch: read an instruction from memory[PC]
 uint32_t fetch(CPU *cpu) {
     if (cpu->pc % 4 != 0) {
         printf("Unaligned PC access: 0x%llx\n", cpu->pc);
@@ -31,7 +31,7 @@ uint32_t fetch(CPU *cpu) {
     return memory_read32(cpu->pc);
 } 
 
-// TODO: Decode: determine the type (ADD, SUB, MOV, LSR, B ...)
+// Decode: determine the type (ADD, SUB, MOV, LSR, B ...)
 DecodeInstr decode(uint32_t instr) {
     DecodeInstr d = { .raw = instr};
     d.opcode = extract_opcode(instr);
@@ -59,14 +59,14 @@ DecodeInstr decode(uint32_t instr) {
             break;
 
         default:
-            printf("RAW: 0x%08X\n", instr);
+            printf("Unknown instruction: 0x%08X\n", instr);
             break;
     }
     
     return d;
 } 
 
-// // TODO: Execute: change registers/flags/PC
+// Execute: change registers/flags/PC
 void execute(CPU *cpu, DecodeInstr d) {
     switch (d.opcode) {
         case OPCODE_ADD:
@@ -90,11 +90,10 @@ void execute(CPU *cpu, DecodeInstr d) {
             break;
     }
 }
-//
+
 // void writeback(CPU *cpu, DecodeInstr *d, uint64_t result) {
-//
 // }
-//
+
 void update_pc(CPU *cpu, DecodeInstr d) {
     switch (d.opcode) {
         case OPCODE_HLT:

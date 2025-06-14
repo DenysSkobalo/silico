@@ -1,6 +1,6 @@
 // Stage 1: CPU struct -> cpu_init -> cpu_dump (DONE!)
 
-// Stage 2 `Execution core`: fetch -> decode -> execute
+// Stage 2 `Execution core`: fetch -> decode -> execute (DONE!)
 // Stage 3 `ALU`
 // Stage 4 `Threads Management`
 // Stage 5 `Halt/Exception/Debug`
@@ -123,4 +123,3 @@ void cpu_tick(CPU *cpu) {
 }
 
 // TODO: ALU
-// TODO: Instruction Decode
