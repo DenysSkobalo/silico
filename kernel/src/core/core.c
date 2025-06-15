@@ -47,9 +47,9 @@ Opcode extract_opcode(uint32_t instr) {
     if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDIS_VALUE) return OPCODE_ANDIS;
 
     // Load constants
-    if ((instr & OPCODE_MOV_MASK) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;
-    if ((instr & OPCODE_MOV_MASK) == OPCODE_MOVK_VALUE) return OPCODE_MOVK;
-    if ((instr & OPCODE_MOV_MASK) == OPCODE_MOVN_VALUE) return OPCODE_MOVN;
+    if ((instr & OPCODE_MOV_WIDE_MASK) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;
+    if ((instr & OPCODE_MOV_WIDE_MASK) == OPCODE_MOVK_VALUE) return OPCODE_MOVK;
+    if ((instr & OPCODE_MOV_WIDE_MASK) == OPCODE_MOVN_VALUE) return OPCODE_MOVN;
 
     // Branches
     if ((instr & OPCODE_BRANCH_MASK) == OPCODE_B_VALUE)   return OPCODE_UNKNOWN; // TODO
@@ -94,11 +94,13 @@ DecodeInstr decode(uint32_t instr) {
     
     switch (d.opcode) {
         case OPCODE_ADD:
+        case OPCODE_ADDS:
         case OPCODE_SUB:
+        case OPCODE_SUBS:
         case OPCODE_AND:
+        case OPCODE_ANDS:
         case OPCODE_ORR:
         case OPCODE_EOR:
-        case OPCODE_ANDS:
             decode_rtype_fields(&d, instr);
             break;
         
