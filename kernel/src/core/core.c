@@ -1,15 +1,71 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../../include/core.h"
 #include "../../include/cpu.h"
 #include "../../include/memory.h"
 
+static inline void decode_rtype_fields(DecodeInstr *d, uint32_t instr) {
+    d->rd = (instr >> 0) & REG_MASK;
+    d->rn = (instr >> 5) & REG_MASK;
+    d->rm = (instr >> 16) & REG_MASK;
+}
+
+static inline void decode_imm12_fields(DecodeInstr *d, uint32_t instr) {
+    d->rd = (instr >> 0) & REG_MASK;
+    d->rn = (instr >> 5) & REG_MASK;
+    d->imm = (instr >> 10) & IMM12_MASK;
+}
+
+static inline void decode_imm16_fields(DecodeInstr *d, uint32_t instr) {
+    d->rd = (instr >> 0) & REG_MASK;
+    d->imm = (instr >> 10) & IMM16_MASK;
+}
+
 Opcode extract_opcode(uint32_t instr) {
-    if ((instr & OPCODE_Rformat_MASK) == OPCODE_ADD_VALUE) return OPCODE_ADD;
-    if ((instr & OPCODE_Rformat_MASK) == OPCODE_SUB_VALUE) return OPCODE_SUB;
-    if ((instr & 0xFFC00000) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;
-    if ((instr & 0xFF000000) == OPCODE_ADDI_VALUE) return OPCODE_ADDI;
-    if ((instr & OPCODE_HLT_MASK) == OPCODE_HLT_VALUE) return OPCODE_HLT;
+    // R-type arithmetic
+    if ((instr & OPCODE_R_MASK) == OPCODE_ADD_VALUE)   return OPCODE_ADD;
+    if ((instr & OPCODE_R_MASK) == OPCODE_ADDS_VALUE)  return OPCODE_ADDS;
+    if ((instr & OPCODE_R_MASK) == OPCODE_SUB_VALUE)   return OPCODE_SUB;
+    if ((instr & OPCODE_R_MASK) == OPCODE_SUBS_VALUE)  return OPCODE_SUBS;
+    if ((instr & OPCODE_R_MASK) == OPCODE_MUL_VALUE)   return OPCODE_MUL;
+
+    // Immediate arithmetic
+    if ((instr & OPCODE_I_MASK) == OPCODE_ADDI_VALUE)  return OPCODE_ADDI;
+    if ((instr & OPCODE_I_MASK) == OPCODE_SUBI_VALUE)  return OPCODE_SUBI;
+
+    // Logical (R-type)
+    if ((instr & OPCODE_R_MASK) == OPCODE_AND_VALUE)   return OPCODE_AND;
+    if ((instr & OPCODE_R_MASK) == OPCODE_ORR_VALUE)   return OPCODE_ORR;
+    if ((instr & OPCODE_R_MASK) == OPCODE_EOR_VALUE)   return OPCODE_EOR;
+    if ((instr & OPCODE_R_MASK) == OPCODE_ANDS_VALUE)  return OPCODE_ANDS;
+
+    // Logical (immediate)
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDI_VALUE)  return OPCODE_ANDI;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ORRI_VALUE)  return OPCODE_ORRI;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_EORI;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDIS_VALUE) return OPCODE_ANDIS;
+
+    // Load constants
+    if ((instr & OPCODE_MOV_MASK) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;
+    if ((instr & OPCODE_MOV_MASK) == OPCODE_MOVK_VALUE) return OPCODE_MOVK;
+    if ((instr & OPCODE_MOV_MASK) == OPCODE_MOVN_VALUE) return OPCODE_MOVN;
+
+    // Branches
+    if ((instr & OPCODE_BRANCH_MASK) == OPCODE_B_VALUE)   return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_BRANCH_MASK) == OPCODE_BL_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & 0xFFFFFC1F) == OPCODE_RET_VALUE)         return OPCODE_UNKNOWN; // TODO
+
+    // Compare & branch
+    if ((instr & OPCODE_CB_MASK) == OPCODE_CBZ_VALUE)     return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_CB_MASK) == OPCODE_CBNZ_VALUE)    return OPCODE_UNKNOWN; // TODO
+
+    // Memory access
+    if ((instr & 0xFFC00000) == OPCODE_LDR_VALUE)         return OPCODE_UNKNOWN; // TODO
+    if ((instr & 0xFFC00000) == OPCODE_STR_VALUE)         return OPCODE_UNKNOWN; // TODO
+
+    // Exceptions
+    if ((instr & OPCODE_EXCEPTION_MASK) == OPCODE_HLT_VALUE) return OPCODE_HLT;
 
     return OPCODE_UNKNOWN;
 }
@@ -39,20 +95,24 @@ DecodeInstr decode(uint32_t instr) {
     switch (d.opcode) {
         case OPCODE_ADD:
         case OPCODE_SUB:
-            d.rd = (instr >> 0) & REG_MASK;
-            d.rn = (instr >> 5) & REG_MASK;
-            d.rm = (instr >> 16) & REG_MASK;
-            break;
-
-        case OPCODE_MOVZ:
-            d.rd = (instr >> 0) & REG_MASK;
-            d.imm = (instr >> 5) & IMM16_MASK;
+        case OPCODE_AND:
+        case OPCODE_ORR:
+        case OPCODE_EOR:
+        case OPCODE_ANDS:
+            decode_rtype_fields(&d, instr);
             break;
         
         case OPCODE_ADDI: 
-            d.rd = (instr >> 0) & REG_MASK;
-            d.rn = (instr >> 5) & REG_MASK;
-            d.imm = (instr >> 10) & IMM12_MASK;
+        case OPCODE_ORRI:
+        case OPCODE_EORI:
+        case OPCODE_ANDIS:
+            decode_imm12_fields(&d, instr);
+            break;
+
+        case OPCODE_MOVZ:
+        case OPCODE_MOVK:
+        case OPCODE_MOVN:
+            decode_imm16_fields(&d, instr);
             break;
 
         case OPCODE_HLT:
