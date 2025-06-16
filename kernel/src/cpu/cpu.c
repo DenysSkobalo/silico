@@ -122,4 +122,3 @@ void cpu_tick(CPU *cpu) {
 
 }
 
-// TODO: ALU

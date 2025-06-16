@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../../include/core.h"
 #include "../../include/cpu.h"
+#include "../../include/alu.h"
 #include "../../include/memory.h"
 
 static inline void decode_rtype_fields(DecodeInstr *d, uint32_t instr) {
@@ -19,7 +20,56 @@ static inline void decode_imm12_fields(DecodeInstr *d, uint32_t instr) {
 
 static inline void decode_imm16_fields(DecodeInstr *d, uint32_t instr) {
     d->rd = (instr >> 0) & REG_MASK;
-    d->imm = (instr >> 10) & IMM16_MASK;
+    d->imm = (instr >> 5) & IMM16_MASK;
+    d->shift = ((instr >> 21) & 0x3) * 16; // LSL #0, #16, #32, #48
+}
+
+InstrClass classify_instruction(Opcode op) {
+    switch (op) {
+        case OPCODE_ADD:
+        case OPCODE_ADDS:
+        case OPCODE_SUB:
+        case OPCODE_SUBS:
+        case OPCODE_MUL:
+            return INSTR_CLASS_ARITHMETIC;
+
+        case OPCODE_ADDI:
+        case OPCODE_SUBI:
+            return INSTR_CLASS_IMMEDIATE;
+
+        case OPCODE_AND:
+        case OPCODE_ORR:
+        case OPCODE_EOR:
+        case OPCODE_ANDS:
+        case OPCODE_ANDI:
+        case OPCODE_ORRI:
+        case OPCODE_EORI:
+        case OPCODE_ANDIS:
+            return INSTR_CLASS_LOGICAL;
+
+        case OPCODE_MOVZ:
+        case OPCODE_MOVK:
+        case OPCODE_MOVN:
+            return INSTR_CLASS_MOV;
+
+        case OPCODE_B:
+        case OPCODE_BL:
+        case OPCODE_RET:
+        case OPCODE_BR:
+        case OPCODE_CBZ:
+        case OPCODE_CBNZ:
+            return INSTR_CLASS_BRANCH;
+
+        case OPCODE_LDR:
+        case OPCODE_STR:
+            return INSTR_CLASS_MEMORY;
+
+        case OPCODE_HLT:
+            return INSTR_CLASS_SYSTEM;
+
+        default:
+            return INSTR_CLASS_UNKNOWN;
+    }
 }
 
 Opcode extract_opcode(uint32_t instr) {
@@ -91,6 +141,7 @@ uint32_t fetch(CPU *cpu) {
 DecodeInstr decode(uint32_t instr) {
     DecodeInstr d = { .raw = instr};
     d.opcode = extract_opcode(instr);
+    d.iclass = classify_instruction(d.opcode);
     
     switch (d.opcode) {
         case OPCODE_ADD:
@@ -130,25 +181,29 @@ DecodeInstr decode(uint32_t instr) {
 
 // Execute: change registers/flags/PC
 void execute(CPU *cpu, DecodeInstr d) {
-    switch (d.opcode) {
-        case OPCODE_ADD:
-            cpu->x[d.rd] = cpu->x[d.rn] + cpu->x[d.rm];
+    switch (d.iclass) {
+        case INSTR_CLASS_ARITHMETIC:
+        case INSTR_CLASS_IMMEDIATE:
+        case INSTR_CLASS_LOGICAL:
+        case INSTR_CLASS_MOV:
+            execute_alu(cpu, d);
             break;
 
-        case OPCODE_MOVZ: 
-            cpu->x[d.rd] = d.imm;
+        case INSTR_CLASS_MEMORY:
+            printf("Memory instruction not yet implemented\n");
+            break;
+        
+        case INSTR_CLASS_BRANCH:
+            printf("Branch instruction not yet implemented\n");
             break;
 
-        case OPCODE_ADDI:
-            cpu->x[d.rd] = cpu->x[d.rn] + d.imm;
-            break;
-
-        case OPCODE_HLT:
-            cpu->halted = 1;
+        case INSTR_CLASS_SYSTEM:
+            if(d.opcode == OPCODE_HLT) cpu->halted = 1;
+            else printf("Unknown system instruction\n");
             break;
 
         default:
-            printf("Unimplemented instruction: opcode=%d\n", d.opcode);
+            printf("Unimplemented instruction class: %d (opcode=%d)\n", d.iclass, d.opcode);
             break;
     }
 }

@@ -109,11 +109,24 @@ typedef enum {
     OPCODE_HLT
 } Opcode;
 
+typedef enum {
+    INSTR_CLASS_UNKNOWN,
+    INSTR_CLASS_ARITHMETIC,    // ADD, SUB, etc.
+    INSTR_CLASS_LOGICAL,       // AND, ORR, EOR, etc.
+    INSTR_CLASS_IMMEDIATE,     // ADDI, ORRI, etc.
+    INSTR_CLASS_MOV,           // MOVZ, MOVK, MOVN
+    INSTR_CLASS_BRANCH,        // B, BL, RET, BR
+    INSTR_CLASS_MEMORY,        // LDR, STR
+    INSTR_CLASS_SYSTEM         // HLT
+} InstrClass;
+
 typedef struct {
     uint32_t raw;           // Full 32-bit raw instruction
     Opcode opcode;          // Decoded type
+    InstrClass iclass;
     uint16_t imm;           // Immediate (if present)
     uint8_t rd, rn, rm;     // Registers: destination, operand1, operand2
+    uint8_t shift;
 } DecodeInstr;
 
 static inline void decode_rtype_fields(DecodeInstr *d, uint32_t instr);

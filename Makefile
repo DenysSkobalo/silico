@@ -7,6 +7,7 @@ SRC = \
 	kernel/src/cpu/cpu.c \
 	kernel/src/memory/memory.c \
 	kernel/src/core/core.c \
+	kernel/src/core/alu.c \
 	ipc/src/ipc.c \
 	ipc/src/commands.c \
 	kernel/main.c
