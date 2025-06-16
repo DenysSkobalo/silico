@@ -115,6 +115,9 @@ void cpu_tick(CPU *cpu) {
 
     DecodeInstr d = decode(instr);
     printf("CPU tick: decoded: opcode=%d, rd=%d, rn=%d, rm=%d\n", d.opcode, d.rd, d.rn, d.rm);
+    if (d.opcode == OPCODE_UNKNOWN) {
+        printf("Unknown instruction: 0x%08X at PC=0x%llX\n", instr, (unsigned long long)cpu->pc);
+    }
 
     execute(cpu, d);
     update_pc(cpu, d);

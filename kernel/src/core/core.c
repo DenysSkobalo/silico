@@ -156,6 +156,7 @@ DecodeInstr decode(uint32_t instr) {
             break;
         
         case OPCODE_ADDI: 
+        case OPCODE_SUBI:
         case OPCODE_ORRI:
         case OPCODE_EORI:
         case OPCODE_ANDIS:
