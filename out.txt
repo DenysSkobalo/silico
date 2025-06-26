@@ -1,0 +1,46 @@
+Assembling asm/main.s into kernel/program.c...
+aarch64-unknown-linux-gnu-as -o asm/tmp.o asm/main.s
+aarch64-unknown-linux-gnu-objcopy -O binary asm/tmp.o asm/tmp.bin
+Generated kernel/program.c.
+gcc -Ikernel/include -Iipc/include -Wall -Wextra -O2 -o build/main kernel/src/cpu/cpu.c kernel/src/memory/memory.c kernel/src/core/core.c kernel/src/core/alu.c ipc/src/ipc.c ipc/src/commands.c kernel/program.c kernel/main.c
+Compilation complete.
+
+=== CPU Halted after 4 cycles ===
+=== CPU State Dump ===
+X0  = 0x0000000000000000
+X1  = 0x0000000000000003
+X2  = 0x0000000000000003
+X3  = 0x0000000000000006
+X4  = 0x0000000000000000
+X5  = 0x0000000000000000
+X6  = 0x0000000000000000
+X7  = 0x0000000000000000
+X8  = 0x0000000000000000
+X9  = 0x0000000000000000
+X10 = 0x0000000000000000
+X11 = 0x0000000000000000
+X12 = 0x0000000000000000
+X13 = 0x0000000000000000
+X14 = 0x0000000000000000
+X15 = 0x0000000000000000
+X16 = 0x0000000000000000
+X17 = 0x0000000000000000
+X18 = 0x0000000000000000
+X19 = 0x0000000000000000
+X20 = 0x0000000000000000
+X21 = 0x0000000000000000
+X22 = 0x0000000000000000
+X23 = 0x0000000000000000
+X24 = 0x0000000000000000
+X25 = 0x0000000000000000
+X26 = 0x0000000000000000
+X27 = 0x0000000000000000
+X28 = 0x0000000000000000
+X29 = 0x0000000000000000
+X30 = 0x0000000000000000
+ PC  = 0x000000000000000c
+Flags: N=0 Z=0 C=0 V=0  D=0 A=0 I=0 F=0 IL=0 SS=0
+EL    = 1
+---- EL1 System State ----
+Cycles: 0
+Halted: yes

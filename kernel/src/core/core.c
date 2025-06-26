@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
 #include "../../include/core.h"
 #include "../../include/cpu.h"
 #include "../../include/alu.h"
@@ -78,7 +80,7 @@ Opcode extract_opcode(uint32_t instr) {
     if ((instr & OPCODE_R_MASK) == OPCODE_ADDS_VALUE)  return OPCODE_ADDS;
     if ((instr & OPCODE_R_MASK) == OPCODE_SUB_VALUE)   return OPCODE_SUB;
     if ((instr & OPCODE_R_MASK) == OPCODE_SUBS_VALUE)  return OPCODE_SUBS;
-    if ((instr & OPCODE_R_MASK) == OPCODE_MUL_VALUE)   return OPCODE_MUL;
+    if ((instr & OPCODE_MUL_EXTENSION_MASK) == OPCODE_MUL_VALUE)   return OPCODE_MUL;
 
     // Immediate arithmetic
     if ((instr & OPCODE_I_MASK) == OPCODE_ADDI_VALUE)  return OPCODE_ADDI;
@@ -91,15 +93,15 @@ Opcode extract_opcode(uint32_t instr) {
     if ((instr & OPCODE_R_MASK) == OPCODE_ANDS_VALUE)  return OPCODE_ANDS;
 
     // Logical (immediate)
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDI_VALUE)  return OPCODE_ANDI;
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ORRI_VALUE)  return OPCODE_ORRI;
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_EORI;
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDIS_VALUE) return OPCODE_ANDIS;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDI_VALUE)  return OPCODE_UNKNOWN;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ORRI_VALUE)  return OPCODE_UNKNOWN;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_UNKNOWN;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDIS_VALUE) return OPCODE_UNKNOWN;
 
     // Load constants
-    if ((instr & OPCODE_MOV_WIDE_MASK) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;
-    if ((instr & OPCODE_MOV_WIDE_MASK) == OPCODE_MOVK_VALUE) return OPCODE_MOVK;
-    if ((instr & OPCODE_MOV_WIDE_MASK) == OPCODE_MOVN_VALUE) return OPCODE_MOVN;
+    if ((instr & OPCODE_MOV_EXTENSION_MASK) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;
+    if ((instr & OPCODE_MOV_EXTENSION_MASK) == OPCODE_MOVK_VALUE) return OPCODE_MOVK;
+    if ((instr & OPCODE_MOV_EXTENSION_MASK) == OPCODE_MOVN_VALUE) return OPCODE_MOVN;
 
     // Branches
     if ((instr & OPCODE_BRANCH_MASK) == OPCODE_B_VALUE)   return OPCODE_UNKNOWN; // TODO
@@ -152,6 +154,7 @@ DecodeInstr decode(uint32_t instr) {
         case OPCODE_ANDS:
         case OPCODE_ORR:
         case OPCODE_EOR:
+        case OPCODE_MUL:
             decode_rtype_fields(&d, instr);
             break;
         
@@ -159,6 +162,7 @@ DecodeInstr decode(uint32_t instr) {
         case OPCODE_SUBI:
         case OPCODE_ORRI:
         case OPCODE_EORI:
+        case OPCODE_ANDI:
         case OPCODE_ANDIS:
             decode_imm12_fields(&d, instr);
             break;

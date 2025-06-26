@@ -3,6 +3,7 @@
 
 #include "cpu.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 // Integer Arithmetic (R-type)
 #define OPCODE_ADD_VALUE     0x8B000000  // ADD Xd, Xn, Xm
@@ -69,10 +70,11 @@
 #define OPCODE_EXCEPTION_MASK    0xFFFFFC00
 #define OPCODE_LOGIC_IMM_MASK    0xFF800000
 
-#define OPCODE_MOV_WIDE_MASK     0xFF800000
-#define OPCODE_LS_MASK           0xFFC00000
-#define OPCODE_LDUR_MASK         0xF8400000
-#define OPCODE_STUR_MASK         0xF8000000
+#define OPCODE_MOV_EXTENSION_MASK 0xFF800000
+#define OPCODE_MUL_EXTENSION_MASK 0xFF207C00
+#define OPCODE_LS_MASK            0xFFC00000
+#define OPCODE_LDUR_MASK          0xF8400000
+#define OPCODE_STUR_MASK          0xF8000000
 
 // Decode Helpers
 #define REG_MASK    0x1F      // 5 bits: register

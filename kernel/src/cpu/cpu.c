@@ -13,7 +13,6 @@
 // #include "../../include/memory.h"
 
 #define RESET_VECTOR 0x0
-
 void cpu_init(CPU *cpu) {
     if(!cpu) return;
 
@@ -63,16 +62,19 @@ void cpu_dump(const CPU* cpu) {
 
     printf("=== CPU State Dump ===\n");
 
-    // General-purpose registers
+    // General-purpose registers: only show non-zero
     for (int i = 0; i < NUM_GP_REGS; ++i) {
-        printf("X%-2d = 0x%016llx\n", i, (unsigned long long)cpu->x[i]);
+        // if (cpu->x[i] != 0) {
+            printf("X%-2d = 0x%016llx\n", i, (unsigned long long)cpu->x[i]);
+        // }
     }
 
-    // SP and PC
-    printf(" SP  = 0x%016llx\n", (unsigned long long)cpu->sp);
+    // SP and PC if non-zero
+    if (cpu->sp != 0)
+        printf(" SP  = 0x%016llx\n", (unsigned long long)cpu->sp);
     printf(" PC  = 0x%016llx\n", (unsigned long long)cpu->pc);
 
-    // PSTATE flags
+    // PSTATE flags (always show)
     printf("Flags: N=%d Z=%d C=%d V=%d  D=%d A=%d I=%d F=%d IL=%d SS=%d\n",
         cpu->pstate.N,
         cpu->pstate.Z,
@@ -89,18 +91,18 @@ void cpu_dump(const CPU* cpu) {
     // Current exception level
     printf("EL    = %d\n", cpu->current_el);
 
-    // Print per-EL system state (optional: only current EL)
+    // Print per-EL system state if non-zero
     int el = cpu->current_el;
     printf("---- EL%d System State ----\n", el);
-    printf(" SP_EL%d   = 0x%016llx\n", el, (unsigned long long)cpu->el[el].sp);
-    printf(" SPSR_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].spsr);
-    printf(" ELR_EL%d  = 0x%016llx\n", el, (unsigned long long)cpu->el[el].elr);
-    printf(" VBAR_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].vbar);
-    printf(" TTBR0_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].ttbr0);
-    printf(" TTBR1_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].ttbr1);
-    printf(" TCR_EL%d   = 0x%016llx\n", el, (unsigned long long)cpu->el[el].tcr);
-    printf(" MAIR_EL%d  = 0x%016llx\n", el, (unsigned long long)cpu->el[el].mair);
-    printf(" SCTLR_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].sctlr);
+    if (cpu->el[el].sp     != 0) printf(" SP_EL%d   = 0x%016llx\n", el, (unsigned long long)cpu->el[el].sp);
+    if (cpu->el[el].spsr   != 0) printf(" SPSR_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].spsr);
+    if (cpu->el[el].elr    != 0) printf(" ELR_EL%d  = 0x%016llx\n", el, (unsigned long long)cpu->el[el].elr);
+    if (cpu->el[el].vbar   != 0) printf(" VBAR_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].vbar);
+    if (cpu->el[el].ttbr0  != 0) printf(" TTBR0_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].ttbr0);
+    if (cpu->el[el].ttbr1  != 0) printf(" TTBR1_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].ttbr1);
+    if (cpu->el[el].tcr    != 0) printf(" TCR_EL%d   = 0x%016llx\n", el, (unsigned long long)cpu->el[el].tcr);
+    if (cpu->el[el].mair   != 0) printf(" MAIR_EL%d  = 0x%016llx\n", el, (unsigned long long)cpu->el[el].mair);
+    if (cpu->el[el].sctlr  != 0) printf(" SCTLR_EL%d = 0x%016llx\n", el, (unsigned long long)cpu->el[el].sctlr);
 
     // Optional cycle count
     printf("Cycles: %llu\n", (unsigned long long)cpu->cycles);
@@ -111,17 +113,17 @@ void cpu_tick(CPU *cpu) {
     if (cpu->halted) return;
 
     uint32_t instr = fetch(cpu);
-    printf("CPU tick: fetched: 0x%08X\n", instr);
+    // printf("CPU tick: fetched: 0x%08X\n", instr);
 
     DecodeInstr d = decode(instr);
-    printf("CPU tick: decoded: opcode=%d, rd=%d, rn=%d, rm=%d\n", d.opcode, d.rd, d.rn, d.rm);
+    // printf("CPU tick: decoded: opcode=%d, rd=%d, rn=%d, rm=%d\n", d.opcode, d.rd, d.rn, d.rm);
     if (d.opcode == OPCODE_UNKNOWN) {
         printf("Unknown instruction: 0x%08X at PC=0x%llX\n", instr, (unsigned long long)cpu->pc);
     }
 
     execute(cpu, d);
     update_pc(cpu, d);
-    printf("CPU tick: execute: halted = %d\n", cpu->halted);
+    // printf("CPU tick: execute: halted = %d\n", cpu->halted);
 
 }
 

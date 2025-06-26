@@ -26,3 +26,5 @@
 8. General refactoring aand clean-up:
     - split decode() into partial per-class decode functions: `decode_rtype(), decode_imm(), decode_branch(), decode_mem()` and also execute(): `execute_alu(), execute_mem(), execute_branch(), execute_system()
 `
+
+
