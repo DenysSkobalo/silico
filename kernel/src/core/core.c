@@ -77,26 +77,28 @@ InstrClass classify_instruction(Opcode op) {
 Opcode extract_opcode(uint32_t instr) {
     // R-type arithmetic
     if ((instr & OPCODE_R_MASK) == OPCODE_ADD_VALUE)   return OPCODE_ADD;
-    if ((instr & OPCODE_R_MASK) == OPCODE_ADDS_VALUE)  return OPCODE_ADDS;
+    if ((instr & OPCODE_R_MASK) == OPCODE_ADDS_VALUE)  return OPCODE_UNKNOWN; // TODO
     if ((instr & OPCODE_R_MASK) == OPCODE_SUB_VALUE)   return OPCODE_SUB;
-    if ((instr & OPCODE_R_MASK) == OPCODE_SUBS_VALUE)  return OPCODE_SUBS;
+    if ((instr & OPCODE_R_MASK) == OPCODE_SUBS_VALUE)  return OPCODE_UNKNOWN; // TODO
     if ((instr & OPCODE_MUL_EXTENSION_MASK) == OPCODE_MUL_VALUE)   return OPCODE_MUL;
 
     // Immediate arithmetic
-    if ((instr & OPCODE_I_MASK) == OPCODE_ADDI_VALUE)  return OPCODE_ADDI;
-    if ((instr & OPCODE_I_MASK) == OPCODE_SUBI_VALUE)  return OPCODE_SUBI;
+    if ((instr & OPCODE_I_MASK) == OPCODE_ADDI_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_I_MASK) == OPCODE_SUBI_VALUE)  return OPCODE_UNKNOWN; // TODO
 
     // Logical (R-type)
     if ((instr & OPCODE_R_MASK) == OPCODE_AND_VALUE)   return OPCODE_AND;
     if ((instr & OPCODE_R_MASK) == OPCODE_ORR_VALUE)   return OPCODE_ORR;
     if ((instr & OPCODE_R_MASK) == OPCODE_EOR_VALUE)   return OPCODE_EOR;
-    if ((instr & OPCODE_R_MASK) == OPCODE_ANDS_VALUE)  return OPCODE_ANDS;
+    if ((instr & OPCODE_R_MASK) == OPCODE_ANDS_VALUE)  return OPCODE_UNKNOWN; // TODO
 
     // Logical (immediate)
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDI_VALUE)  return OPCODE_UNKNOWN;
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ORRI_VALUE)  return OPCODE_UNKNOWN;
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_UNKNOWN;
-    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDIS_VALUE) return OPCODE_UNKNOWN;
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDI_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ORRI_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_EORI_VALUE)  return OPCODE_UNKNOWN; // TODO
+    if ((instr & OPCODE_LOGIC_IMM_MASK) == OPCODE_ANDIS_VALUE) return OPCODE_UNKNOWN; // TODO
 
     // Load constants
     if ((instr & OPCODE_MOV_EXTENSION_MASK) == OPCODE_MOVZ_VALUE) return OPCODE_MOVZ;

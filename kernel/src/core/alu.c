@@ -4,6 +4,14 @@
 #include "../../include/core.h"
 #include "../../include/cpu.h"
 
+int get_cycles_for_opcode(Opcode op) {
+    switch (op) {
+        case OPCODE_MUL: return 3;
+        case OPCODE_HLT: return 0;
+        default:         return 1;
+    }
+}
+
 void execute_alu(CPU *cpu, DecodeInstr d) {
     uint64_t rn_val = (d.rn == 31) ? 0 : cpu->x[d.rn];
     uint64_t rm_val = (d.rm == 31) ? 0 : cpu->x[d.rm];
@@ -53,5 +61,7 @@ void execute_alu(CPU *cpu, DecodeInstr d) {
         default:
             printf("Unimplemented ALU op: %d\n", d.opcode);
             break;
+
     }
+    cpu->cycles += get_cycles_for_opcode(d.opcode);
 }
